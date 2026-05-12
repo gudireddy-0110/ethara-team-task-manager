@@ -118,11 +118,24 @@ const updateTaskStatus = async (req, res) => {
       });
     }
 
-    if (task.assignedToId !== req.user.id) {
-      return res.status(403).json({
-        message: "You can only update your own tasks.",
-      });
-    }
+    const membership = await prisma.projectMember.findFirst({
+  where: {
+    projectId: task.projectId,
+    userId: req.user.id,
+  },
+});
+
+if (!membership) {
+  return res.status(403).json({
+    message: "You are not a member of this project.",
+  });
+}
+
+if (membership.role !== "ADMIN" && task.assignedToId !== req.user.id) {
+  return res.status(403).json({
+    message: "Only admins or assigned members can update this task.",
+  });
+}
 
     const updatedTask = await prisma.task.update({
       where: {
