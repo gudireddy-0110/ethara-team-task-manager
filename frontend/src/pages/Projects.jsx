@@ -40,6 +40,14 @@ function Projects() {
 
   return (
     <div className="page">
+      <div className="navbar">
+        <h2>Team Task Manager</h2>
+
+        <div>
+          <Link to="/dashboard">Dashboard</Link>
+        </div>
+      </div>
+
       <h1>Projects</h1>
 
       <div className="project-layout">

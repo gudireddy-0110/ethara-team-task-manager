@@ -6,6 +6,7 @@ function ProjectDetails() {
   const { projectId } = useParams();
 
   const [tasks, setTasks] = useState([]);
+  const [project, setProject] = useState(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -17,8 +18,16 @@ function ProjectDetails() {
 
   const fetchTasks = async () => {
     try {
-      const res = await API.get(`/tasks/${projectId}`);
-      setTasks(res.data);
+      const taskRes = await API.get(`/tasks/${projectId}`);
+      setTasks(taskRes.data);
+
+      const projectRes = await API.get("/projects");
+
+      const currentProject = projectRes.data.find(
+        (p) => p.id === projectId
+      );
+
+      setProject(currentProject);
     } catch (error) {
       console.log(error);
     }
@@ -69,6 +78,15 @@ function ProjectDetails() {
 
   return (
     <div className="page">
+      <div className="navbar">
+        <h2>Team Task Manager</h2>
+
+        <div>
+          <a href="/dashboard">Dashboard</a>
+          <a href="/projects">Projects</a>
+        </div>
+      </div>
+
       <h1>Project Tasks</h1>
 
       <div className="project-layout">
@@ -107,12 +125,22 @@ function ProjectDetails() {
               <option value="HIGH">HIGH</option>
             </select>
 
-            <input
+            <select
               name="assignedToId"
-              placeholder="Assigned User ID"
               value={form.assignedToId}
               onChange={handleChange}
-            />
+            >
+              <option value="">Select Team Member</option>
+
+              {project?.members?.map((member) => (
+                <option
+                  key={member.user.id}
+                  value={member.user.id}
+                >
+                  {member.user.name}
+                </option>
+              ))}
+            </select>
 
             <button type="submit">Create Task</button>
           </form>
